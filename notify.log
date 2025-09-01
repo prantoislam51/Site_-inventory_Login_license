@@ -1,0 +1,6 @@
+
+> vite-react-typescript-starter@0.0.0 notify
+> node notify-server.cjs
+
+SMTP not fully configured. Emails will be logged to console.
+Notify server listening on http://localhost:3002

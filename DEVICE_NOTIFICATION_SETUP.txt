@@ -1,0 +1,40 @@
+Login Notification (Appareil non approuvé) - Guide d'installation
+
+1) Pré-requis SMTP
+- Créez un compte SMTP (ex: Gmail App Password, Mailgun, SendGrid, votre hébergeur)
+- Variables d'environnement à définir (ex: .env local):
+  ADMIN_EMAIL=pranto.bev@gmail.com
+  SMTP_HOST=smtp.votre-fournisseur.com
+  SMTP_PORT=587
+  SMTP_SECURE=false
+  SMTP_USER=votre_utilisateur
+  SMTP_PASS=votre_mot_de_passe
+  MAIL_FROM=alerts@example.com
+  NOTIFY_PORT=3002
+
+2) Démarrer le serveur de notification
+- Dans le dossier du projet:
+  npm run notify
+
+3) Comment ça marche
+- Lors du premier login d'un email sur une machine, l'empreinte de l'appareil est enregistrée comme appareil approuvé (pas d'email envoyé).
+- À chaque login suivant avec le même email:
+  * Si l'empreinte est identique: rien à faire.
+  * Si l'empreinte est différente (autre ordinateur): un email d'alerte est envoyé à ADMIN_EMAIL.
+
+4) Où est branchée la notification?
+- Frontend: src/utils/auth.ts appelle notifyLoginIfUnapproved après un login réussi.
+- Empreinte: src/utils/deviceFingerprint.ts
+- Client Notification: src/utils/loginNotifier.ts (POST → http://localhost:3002/notify-login)
+- Serveur: notify-server.cjs (Express + Nodemailer)
+
+5) Déploiement chez le client
+- Exécuter l'app normalement (npm run dev / build)
+- Lancer en parallèle le serveur de notification (npm run notify)
+- Configurer un service pour garder le serveur actif (PM2, systemd, ou tâche planifiée)
+
+6) Sécurité et limites
+- Cette solution repose sur une empreinte non invasive (sans driver ni admin rights) et une clé d'installation stockée localement.
+- Un utilisateur très avancé peut contourner la vérification s'il modifie le code; pour un durcissement, placer la logique de vérification côté serveur d'auth centralisé.
+
+
